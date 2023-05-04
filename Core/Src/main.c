@@ -17,18 +17,19 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
 #include "main.h"
 #include "i2c.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "pidControl.h"
 #include "settings.h"
 #include "encoder.h"
+#include "relocated.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -129,7 +130,8 @@ int main(void)
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-
+  /*******串口重定向*********/
+    RetargetInit(&huart1);
 
   /* USER CODE END 2 */
 
@@ -140,7 +142,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    pidSpeed = pid_calc(&pidSpeedStruct, speed, encoderUpdate());
+    pidSpeed = pid_calc(&pidSpeedStruct, speed, encoderSpeedCal());
 
   }
   /* USER CODE END 3 */
@@ -230,6 +232,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
+  printf("Wrong parameters value: file %s on line %lu\r\n", file, line);
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */

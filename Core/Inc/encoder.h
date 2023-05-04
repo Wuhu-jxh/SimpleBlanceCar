@@ -4,6 +4,6 @@
 
 #ifndef SIMPLEBLANCECAR_ENCODER_H
 #define SIMPLEBLANCECAR_ENCODER_H
-float encoderUpdate(); //更新编码器的值(如果需要)
-void encoderSpeedCal(); //计算编码器的速度
+void encoderUpdate(); //更新编码器的值(如果需要)
+float encoderSpeedCal(); //计算编码器的速度
 #endif //SIMPLEBLANCECAR_ENCODER_H
