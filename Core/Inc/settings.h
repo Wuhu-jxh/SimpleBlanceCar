@@ -17,6 +17,19 @@
 #define LOW_PASS_FILTER_A 0.02f  //低通滤波系数
 /*************电机参数**************/
 #define MOTOR_MAX 1000
+/************PID_核心参数*************/
+#define CORE_PID_SPEED_EN true //速度环使能
+#define CORE_PID_ANGLE_EN true //角度环使能
+#define CORE_PID_POSITION_EN true //位置环使能
+/**
+ * @brief PID滤波模式
+ * @param 0 -- 不滤波
+ * @param 1 -- 低通滤波
+ * @param 2 -- 卡尔曼滤波
+ * @param 3 -- 低通滤波+卡尔曼滤波
+ * @param 4 -- 均值滤波
+ */
+#define CORE_PID_FILTER_MODE 0 //滤波模式
 
 /************PID环_速度环参数*************/
 #define SPEED_PID_KP 0.5f
