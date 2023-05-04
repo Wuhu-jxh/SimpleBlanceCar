@@ -4,11 +4,11 @@
 #include "main.h"
 #include "pidControl.h"
 #include "settings.h"
-#include <math.h>
+#include <cmath>
 //卡尔曼滤波函数初始化，具体参照头文件
 void kalmanFilter_Init(kalman_filter *kalman, float p, float q, float r, float k, float z, float u)
 {
-    assert(kalman != NULL);
+    assert(kalman != nullptr);
     kalman->p = p;
     kalman->q = q;
     kalman->r = r;
@@ -24,7 +24,7 @@ void kalmanFilter_Init(kalman_filter *kalman, float p, float q, float r, float k
 }
 float KalmanFilter_calc(kalman_filter *kalman, float measure)
 {
-    assert(kalman != NULL);
+    assert(kalman != nullptr);
     assert(measure != NAN);
     //预测
     kalman->x_mid = kalman->x_last + kalman->u;
@@ -44,7 +44,7 @@ float KalmanFilter_calc(kalman_filter *kalman, float measure)
 
 void pid_Init(PID *pid, float kp, float ki, float kd)
 {
-    assert(pid != NULL);
+    assert(pid != nullptr);
     pid->kp = kp;
     pid->ki = ki;
     pid->kd = kd;
@@ -57,7 +57,7 @@ void pid_Init(PID *pid, float kp, float ki, float kd)
 
 float pid_calc(PID *pid, float target, float measure)
 {
-    assert(pid != NULL);
+    assert(pid != nullptr);
     assert(target != NAN);
     assert(measure != NAN);
     pid->err = target - measure;
@@ -88,7 +88,7 @@ void lowPassInit(low_pass_filter * low_pass , float a)
 }
 float lowPassCalc(low_pass_filter * low_pass , float measure)
 {
-    assert(low_pass != NULL);
+    assert(low_pass != nullptr);
     assert(measure != NAN);
     low_pass->x_now = measure;
     low_pass->y_now = low_pass->a * low_pass->x_now + low_pass->b * low_pass->x_last;

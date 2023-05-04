@@ -17,7 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <string.h>
+#include <cstring>
 #include "main.h"
 #include "i2c.h"
 #include "tim.h"
