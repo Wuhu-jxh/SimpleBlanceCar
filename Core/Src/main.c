@@ -23,9 +23,12 @@
 #include "usart.h"
 #include "gpio.h"
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "pidControl.h"
+#include "settings.h"
+#include "encoder.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,7 +49,24 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+/**********编码器**********/
+int32_t encoderLeft = 0;
+int32_t encoderRight = 0;
+/**********电机**********/
+int32_t motorLeft = 0;
+int32_t motorRight = 0;
+/**********PID**********/
+float pidSpeed = 0;
+float pidBlance = 0;
+float pidTurn = 0;
+PID pidBlanceStruct, pidSpeedStruct,pidTurnStruct;
+/**********速度**********/
+float speed = 0;
+/**********角度**********/
+float angle = 0;
+/**********滤波**********/
+kalman_filter kalmanFilterStruct;
+low_pass_filter lowPassFilterStruct;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,6 +88,11 @@ static void MX_NVIC_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+    pid_Init(&pidBlanceStruct, POSITION_PID_KP,0,POSITION_PID_KD);
+    pid_Init(&pidSpeedStruct, SPEED_PID_KP, SPEED_PID_KI, 0);
+    pid_Init(&pidTurnStruct, ANGLE_PID_KP, 0, 0);
+    kalmanFilter_Init(&kalmanFilterStruct, KALMAN_P, KALMAN_Q, KALMAN_R,KALMAN_K,0,0);
+    lowPassInit(&lowPassFilterStruct, LOW_PASS_FILTER_A);
 
   /* USER CODE END 1 */
 
@@ -92,11 +117,19 @@ int main(void)
   MX_I2C1_Init();
   MX_TIM2_Init();
   MX_TIM3_Init();
-  MX_USART2_UART_Init();
+  MX_I2C2_Init();
+  MX_TIM1_Init();
+  MX_USART1_UART_Init();
 
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
+  /********HAL库相关的初始化********/
+    HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_1);
+    HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+
 
   /* USER CODE END 2 */
 
@@ -107,6 +140,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    pidSpeed = pid_calc(&pidSpeedStruct, speed, encoderUpdate());
+
   }
   /* USER CODE END 3 */
 }
@@ -163,9 +198,6 @@ static void MX_NVIC_Init(void)
   /* TIM3_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(TIM3_IRQn);
-  /* USART2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(USART2_IRQn);
 }
 
 /* USER CODE BEGIN 4 */

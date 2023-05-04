@@ -57,11 +57,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Echo_Pin GPIO_PIN_10
-#define Echo_GPIO_Port GPIOA
-#define Tigger_Pin GPIO_PIN_11
-#define Tigger_GPIO_Port GPIOA
-#define Tigger_EXTI_IRQn EXTI15_10_IRQn
 
 /* USER CODE BEGIN Private defines */
 

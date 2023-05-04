@@ -67,6 +67,29 @@ float KalmanFilter_calc(kalman_filter *kalman, float measure);
  * @@@ 注意: 本套算法没有完全按照卡尔曼滤波的数学公式来实现，而是根据实际情况进行了一些简化，具体参照代码
  */
 /*************卡尔曼滤波部分结束**************/
+/*************低通滤波部分开始**************/
+typedef struct {
+    float a; //低通滤波系数
+    float b; //低通滤波系数
+    float x_last; //上次的值
+    float y_last; //上次的值
+    float x_now; //当前的值
+    float y_now; //当前的值
+} low_pass_filter;
+/**
+ * @brief 低通滤波初始化函数
+ * @param low_pass 低通滤波器参数的结构体地址
+ * @param a 低通滤波系数
+ */
+void lowPassInit(low_pass_filter * low_pass , float a);
+/**
+ * @brief 低通滤波计算函数
+ * @param low_pass 低通滤波器参数的结构体地址
+ * @param measure 测量值
+ * @return 滤波结果
+ */
+float lowPassCalc(low_pass_filter * low_pass , float measure);
+/*************低通滤波部分结束**************/
 
 /*************PID控制部分开始**************/
 //PID参数结构体
@@ -79,7 +102,7 @@ typedef struct{
     float integral; //积分值
     float derivative; //微分值
     float output; //输出值
-} pid;
+} PID;
 /**
  * @brief PID控制器初始化函数
  * @param pid PID控制器参数的结构体地址
@@ -87,7 +110,7 @@ typedef struct{
  * @param ki 积分系数
  * @param kd 微分系数
  */
-void pid_Init(pid *pid, float kp, float ki, float kd);
+void pid_Init(PID *pid, float kp, float ki, float kd);
 /**
  * @brief PID控制器计算函数
  * @param pid PID控制器参数的结构体地址
@@ -95,8 +118,9 @@ void pid_Init(pid *pid, float kp, float ki, float kd);
  * @param measure 测量值
  * @return PID控制器输出值
  */
-float pid_calc(pid *pid, float target, float measure);
+float pid_calc(PID *pid, float target, float measure);
 /*************PID控制部分结束**************/
+
 
 
 #endif //SIMPLEBLANCECAR_PIDCONTROL_H

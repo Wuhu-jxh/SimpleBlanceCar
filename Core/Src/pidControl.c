@@ -38,7 +38,7 @@ float KalmanFilter_calc(kalman_filter *kalman, float measure)
     return kalman->x_now;
 }
 
-void pid_Init(pid *pid, float kp, float ki, float kd)
+void pid_Init(PID *pid, float kp, float ki, float kd)
 {
     pid->kp = kp;
     pid->ki = ki;
@@ -50,7 +50,7 @@ void pid_Init(pid *pid, float kp, float ki, float kd)
     pid->output = 0;
 }
 
-float pid_calc(pid *pid, float target, float measure)
+float pid_calc(PID *pid, float target, float measure)
 {
     pid->err = target - measure;
     pid->integral += pid->err;
@@ -58,4 +58,22 @@ float pid_calc(pid *pid, float target, float measure)
     pid->output = pid->kp * pid->err + pid->ki * pid->integral + pid->kd * pid->derivative;
     pid->err_last = pid->err;
     return pid->output;
+}
+void lowPassInit(low_pass_filter * low_pass , float a)
+{
+    low_pass->a = a;
+    low_pass->b = 1 - a;
+    low_pass->x_last = 0;
+    low_pass->x_now = 0;
+    low_pass->y_last = 0;
+    low_pass->y_now = 0;
+}
+float lowPassCalc(low_pass_filter * low_pass , float measure)
+{
+    low_pass->x_now = measure;
+    low_pass->y_now = low_pass->a * low_pass->x_now + low_pass->b * low_pass->x_last;
+    low_pass->x_last = low_pass->x_now;
+    low_pass->y_last = low_pass->y_now;
+    return low_pass->y_now;
+
 }
