@@ -2,6 +2,7 @@
 // Created by 神奇bug在哪里 on 2023/5/4.
 //
 
+#include <string>
 #include "MPU6050.h"
 #include "i2c.h"
 #include "SerialIO.h"
@@ -33,6 +34,7 @@ void MPU6050::update() {
     data.gyro.y = (buf[10]<<8)|buf[11];
     data.gyro.z = (buf[12]<<8)|buf[13];
     sysLogf(LOG_DEBUG,"accel: %d %d %d,gyro: %d %d %d",data.accel.x,data.accel.y,data.accel.z,data.gyro.x,data.gyro.y,data.gyro.z);
+//    sysLog(LOG_DEBUG,("accel: " + std::to_string(data.accel.x) + " " + std::to_string(data.accel.y) + " " + std::to_string(data.accel.z) + ",gyro: " + std::to_string(data.gyro.x) + " " + std::to_string(data.gyro.y) + " " + std::to_string(data.gyro.z)).c_str());
 }
 
 

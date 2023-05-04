@@ -31,6 +31,7 @@
 #include "encoder.h"
 #include "relocated.h"
 #include "SerialIO.h"
+#include "motor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -97,7 +98,7 @@ int main(void)
     kalmanFilter_Init(&kalmanFilterStruct, KALMAN_P, KALMAN_Q, KALMAN_R,KALMAN_K,0,0);
     lowPassInit(&lowPassFilterStruct, LOW_PASS_FILTER_A);
     MPU6050 mpu(I2C_MPU6050_ADDR);
-
+    PIDControl pid;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -151,7 +152,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     mpu.update();
-
+    auto dat = mpu.getData();
+    auto result = pid.getPidResult(&dat,speed,angle);
+    motor_Control_L(result.dat_L);
+    motor_Control_R(result.dat_R);
 
   }
   /* USER CODE END 3 */
@@ -251,7 +255,7 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-    sysLogf(LOG_FATAL,"系统已进入ErrorHandler,即将重置....");
+    sysLog(LOG_FATAL,"系统已进入ErrorHandler,即将重置....");
     __set_FAULTMASK(1);
     HAL_NVIC_SystemReset();
   /* USER CODE END Error_Handler_Debug */
@@ -268,7 +272,7 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-    sysLogf(LOG_FATAL,"系统断言触发！出现严重异常。错误存在于%s,第%d行\r\n",file,line);
+//    sysLogf(LOG_FATAL,"系统断言触发！出现严重异常。错误存在于%s,第%d行\r\n",file,line);
     HAL_NVIC_SystemReset();
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */

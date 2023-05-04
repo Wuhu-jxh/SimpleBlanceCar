@@ -123,16 +123,24 @@ float pid_calc(PID *pid, float target, float measure);
 /*************PID控制部分结束**************/
 
 /*************核心PID类******************/
+
 class PIDControl {
 private:
+
     float pidSpeed = 0;
     float pidBlance = 0;
     float pidTurn = 0;
     PID pidBlanceStruct{}, pidSpeedStruct{},pidTurnStruct{};
-    PIDControl(); // NOLINT(modernize-use-equals-delete)
+    // NOLINT(modernize-use-equals-delete)
 public:
-    float getPidResult(MPU6050_t *dat, float speed, float turnAngle) const;
+    typedef struct
+    {
+        float dat_L;
+        float dat_R;
+    }data;
+    data getPidResult(MPU6050_t *dat, float speed, float turnAngle) const;
 
+    PIDControl();
 };
 
 

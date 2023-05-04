@@ -4,6 +4,8 @@
 
 #ifndef SIMPLEBLANCECAR_SERIALIO_H
 #define SIMPLEBLANCECAR_SERIALIO_H
+
+#include <string>
 #include "main.h"
 enum LOG_level {
     LOG_DEBUG,
@@ -13,7 +15,8 @@ enum LOG_level {
     LOG_FATAL,
     LOG_DISABLE
 };
-void sysLog(enum LOG_level lv,char *str); //系统日志
+void sysLog(enum LOG_level lv, const char *str); //系统日志
+//void sysLog(enum LOG_level lv,std::string dat);
 void sysLogf(enum LOG_level lv,char *format,...); //系统日志
 void returnPid(); //返回PID数据
 void returnEncoder(); //返回编码器数据

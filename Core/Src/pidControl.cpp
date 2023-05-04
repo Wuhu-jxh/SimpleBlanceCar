@@ -104,10 +104,11 @@ PIDControl::PIDControl() {
         pid_Init(&pidTurnStruct, ANGLE_PID_KP, 0, 0);
 }
 
-float PIDControl::getPidResult(MPU6050_t *dat, float speed, float turnAngle) const {
+PIDControl::data PIDControl::getPidResult(MPU6050_t *dat, float speed, float turnAngle) const {
     assert(dat != nullptr);
     assert(speed != NAN);
     assert(turnAngle != NAN);
+    return {0,0};
 }
 
 
