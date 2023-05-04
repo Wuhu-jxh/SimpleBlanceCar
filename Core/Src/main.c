@@ -17,7 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <stdio.h>
+#include <string.h>
 #include "main.h"
 #include "i2c.h"
 #include "tim.h"
@@ -30,6 +30,7 @@
 #include "settings.h"
 #include "encoder.h"
 #include "relocated.h"
+#include "SerialIO.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,6 +69,14 @@ float angle = 0;
 /**********滤波**********/
 kalman_filter kalmanFilterStruct;
 low_pass_filter lowPassFilterStruct;
+/*********串口IO********/
+float x = 0;
+float y = 0;
+float z = 0;
+/********陀螺仪*********/
+char rxBuffer;
+char RxBuffer[RXBUFFERSIZE];
+int Uart1_Rx_Cnt = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,6 +103,7 @@ int main(void)
     pid_Init(&pidTurnStruct, ANGLE_PID_KP, 0, 0);
     kalmanFilter_Init(&kalmanFilterStruct, KALMAN_P, KALMAN_Q, KALMAN_R,KALMAN_K,0,0);
     lowPassInit(&lowPassFilterStruct, LOW_PASS_FILTER_A);
+
 
   /* USER CODE END 1 */
 
@@ -125,13 +135,18 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
+    /*******串口重定向*********/
+    RetargetInit(&huart1);
+    sysLog(LOG_DEBUG,"串口重定向完成");
+
   /********HAL库相关的初始化********/
     HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_1);
     HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-  /*******串口重定向*********/
-    RetargetInit(&huart1);
+    HAL_UART_Receive_IT(&huart1, (uint8_t *) &rxBuffer, 1);
+    HAL_I2C_Init(&hi2c1);
+    sysLog(LOG_DEBUG,"HAL库相关的初始化完成");
 
   /* USER CODE END 2 */
 
@@ -198,14 +213,41 @@ void SystemClock_Config(void)
 static void MX_NVIC_Init(void)
 {
   /* TIM3_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(TIM3_IRQn, 1, 0);
   HAL_NVIC_EnableIRQ(TIM3_IRQn);
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
 
+}
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (Uart1_Rx_Cnt >= RXBUFFERSIZE)  //溢出判断
+    {
+        UNUSED(huart);
+        Uart1_Rx_Cnt = 0;
+        memset(RxBuffer, 0x00, sizeof(RxBuffer));
+        HAL_UART_Transmit(&huart1, (uint8_t *) "数据溢出", 12, 0xFFFF);
+    }
+    else
+    {
+        RxBuffer[Uart1_Rx_Cnt++] = rxBuffer;   //接收数据转存
+        if (RxBuffer[Uart1_Rx_Cnt - 1] == '#') //判断结束位
+        {
+            processCommand(RxBuffer,Uart1_Rx_Cnt);
+            memset(RxBuffer,0x00,sizeof(RxBuffer));
+            Uart1_Rx_Cnt = 0;
+        }
+    }
+    HAL_UART_Receive_IT(&huart1, (uint8_t *) &rxBuffer, 1);   //再开启接收中断
+}
 /* USER CODE END 4 */
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None
@@ -215,9 +257,9 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
-  {
-  }
+    sysLogf(LOG_FATAL,"系统已进入ErrorHandler,即将重置....");
+    __set_FAULTMASK(1);
+    HAL_NVIC_SystemReset();
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -232,7 +274,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  printf("Wrong parameters value: file %s on line %lu\r\n", file, line);
+    sysLogf(LOG_FATAL,"系统断言触发！出现严重异常。错误存在于%s,第%d行\r\n",file,line);
+    HAL_NVIC_SystemReset();
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
