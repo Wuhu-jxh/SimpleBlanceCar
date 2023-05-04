@@ -4,6 +4,7 @@
 
 #ifndef SIMPLEBLANCECAR_SERIALIO_H
 #define SIMPLEBLANCECAR_SERIALIO_H
+#include "main.h"
 enum LOG_level {
     LOG_DEBUG,
     LOG_INFO,
