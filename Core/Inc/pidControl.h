@@ -5,6 +5,7 @@
 #ifndef SIMPLEBLANCECAR_PIDCONTROL_H
 #define SIMPLEBLANCECAR_PIDCONTROL_H
 /*************卡尔曼滤波部分开始**************/
+#include "MPU6050.h"
 
 /**
  * @brief 卡尔曼滤波函数
@@ -121,6 +122,18 @@ void pid_Init(PID *pid, float kp, float ki, float kd);
 float pid_calc(PID *pid, float target, float measure);
 /*************PID控制部分结束**************/
 
+/*************核心PID类******************/
+class PIDControl {
+private:
+    float pidSpeed = 0;
+    float pidBlance = 0;
+    float pidTurn = 0;
+    PID pidBlanceStruct{}, pidSpeedStruct{},pidTurnStruct{};
+    PIDControl(); // NOLINT(modernize-use-equals-delete)
+public:
+    float getPidResult(MPU6050_t *dat, float speed, float turnAngle) const;
+
+};
 
 
 #endif //SIMPLEBLANCECAR_PIDCONTROL_H

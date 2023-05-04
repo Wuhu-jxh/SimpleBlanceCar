@@ -23,7 +23,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
+#include "MPU6050.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "pidControl.h"
@@ -57,11 +57,7 @@ int32_t encoderRight = 0;
 /**********电机**********/
 int32_t motorLeft = 0;
 int32_t motorRight = 0;
-/**********PID**********/
-float pidSpeed = 0;
-float pidBlance = 0;
-float pidTurn = 0;
-PID pidBlanceStruct, pidSpeedStruct,pidTurnStruct;
+
 /**********速度**********/
 float speed = 0;
 /**********角度**********/
@@ -98,12 +94,9 @@ static void MX_NVIC_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-    pid_Init(&pidBlanceStruct, POSITION_PID_KP,0,POSITION_PID_KD);
-    pid_Init(&pidSpeedStruct, SPEED_PID_KP, SPEED_PID_KI, 0);
-    pid_Init(&pidTurnStruct, ANGLE_PID_KP, 0, 0);
     kalmanFilter_Init(&kalmanFilterStruct, KALMAN_P, KALMAN_Q, KALMAN_R,KALMAN_K,0,0);
     lowPassInit(&lowPassFilterStruct, LOW_PASS_FILTER_A);
-
+    MPU6050 mpu(I2C_MPU6050_ADDR);
 
   /* USER CODE END 1 */
 
@@ -157,7 +150,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    pidSpeed = pid_calc(&pidSpeedStruct, speed, encoderSpeedCal());
+    mpu.update();
+
 
   }
   /* USER CODE END 3 */
